@@ -1,189 +1,172 @@
 ---
 title: API Reference
 
-language_tabs:
-  - shell
-  - ruby
-  - python
-  - javascript
-
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
-
-includes:
-  - errors
+  - <a target="_blank" href='https://www.mydigipass.com'>MYDIGIPASS</a>
+  - <a target="_blank" href='https://developer.mydigipass.com'>MYDIGIPASS Developer site</a>
+  - <hr/>
+  - © 2010 - 2017
+  - <a target="_blank" href='https://www.vasco.com'>VASCO Data Security International GmbH</a>
+  - All Rights Reserved (1.5.57)
+  - <hr/>
 
 search: true
+
 ---
 
-# Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+# OpenID Connect
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+> Examples will be shown in this column
 
-This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+Here are the changes made to MYDIGIPASS oauth endpoints to support [OpenID Connect Core](http://openid.net/specs/openid-connect-core-1_0.html).
 
-# Authentication
+# Configuration Endpoint
 
-> To authorize, use this code:
+## GET /.well-known/openid-configuration
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+```sh
+curl -X GET "https://www.mydigipass.com/.well-known/openid-configuration"
 ```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
-```
-
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "issuer": "https://www.mydigipass.com",
+  "authorization_endpoint": "https://www.mydigipass.com/oauth/authenticate",
+  "token_endpoint": "https://www.mydigipass.com/oauth/token",
+  "jwks_uri": "https://www.mydigipass.com/oauth/v1/jwks",
+  "response_types_supported": [
+    "code"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "RS256"
+  ],
+  "subject_types_supported": "public",
+  "userinfo_signing_alg_values_supported": [
+    "RS256"
+  ],
+  "acr_values_supported": []
 }
 ```
 
-This endpoint retrieves a specific kitten.
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
 
-### HTTP Request
+This new endpoint returns a set of Claims about the OpenID Connect Provider's configuration, including all necessary endpoints and public key location information.
 
-`GET http://example.com/kittens/<ID>`
+# JWKS Endpoint
 
-### URL Parameters
+## GET /oauth/v1/jwks
 
-Parameter | Description
+```sh
+curl -X GET "https://www.mydigipass.com/oauth/v1/jwks"
+```
+
+```json
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "n": "wBgyI8kB0BkWfTxIBsBc1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE-TRIrY3FUTH6djn3rqpL-UsO4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW-mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9-81PdFBH-eEFO2f72FGhgxhiqKmcvUqn1ImY7iqQZ4C1h_Y4lvkw_AViL_m9IL2p4zJ8LWYwRHu4HfDExJB4LTn_XOdWrNQW4aTrbECAEKx_QTWWxnQ-odG46d0826CxpiEr6FKmVQWrWPEemBGjw",
+      "kid": "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb",
+      "use": "sig"
+    }
+  ]
+}
+```
+
+The public keys that can be used to verfied the signature in JWS documents delivered by MYDIGIPASS
+
+Key | Description
+--- | ---
+kid | id of the JWK, will be referenced in the JOSE header of any JWS document delivered by MYDIGIPASS
+n   | modulus of the JWK
+e   | exponent of the JWK
+use | used for signature only
+
+# Authorization Endpoint
+
+## GET or POST /oauth/authenticate
+
+> This is most commonly done by adding `opendid` to the `data-scope` attribute of the MYDIGIPASS button.
+
+The `openid` scope can be passed to our authorization endpoint.
+
+# Token Endpoint
+
+## POST /oauth/token
+
+```json
+{
+"account": "the_user_account_uuid",
+"access_token": "access_token_for_userinfo_endpoint",
+"id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g"
+}
+```
+
+Now, the token endpoint will also return an `id_token` param containing a [JWS](https://tools.ietf.org/html/rfc7515).
+This JWS is a string made of 3 parts separated by `.`
+
+- JOSE Header
+- JWS Payload
+- JWS Signature
+
+
+## id_token JOSE header
+
+```json
+{
+"typ": "JWT",
+"alg": "RS256",
+"kid": "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"
+}
+```
+
+JSON object containing the parameters describing the cryptographic operations and parameters employed.
+
+Key | Description
+--- | ---
+typ | type of token
+alg | algorithm used to sign the JWT
+kid | key id, the id of the public key used to sign the JWT the key itself is defined in the [JWKS](#jwks-endpoint) endpoint
+
+
+## id_token Payload
+
+```json
+{
+"iss": "https://mydigipass.com",
+"sub": "the_user_account_uuid",
+"aud": "your_applications_client_id",
+"iat": 1499756471,
+"exp": 1499756771
+}
+```
+
+Claim     | Description
 --------- | -----------
-ID | The ID of the kitten to retrieve
+iat       | The time at which the id_token was issued
+exp       | The expiration time of the id_token
 
+## id_token Signature
+
+Digital signature of the JWS Protected Header + the JWS Payload.
+
+The public key can be found on the [JWKS](#jwks-endpoint) endpoint
+
+```txt
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwBgyI8kB0BkWfTxIBsBc
+1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE+TRIrY3FUTH6djn3rqpL+Us
+O4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW+
+mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9+81PdFBH+eEFO2f72FG
+hgxhiqKmcvUqn1ImY7iqQZ4C1h/Y4lvkw/AViL/m9IL2p4zJ8LWYwRHu4HfDExJB
+4LTn/XOdWrNQW4aTrbECAEKx/QTWWxnQ+odG46d0826CxpiEr6FKmVQWrWPEemBG
+jwIDAQAB
+-----END PUBLIC KEY-----
+```
+
+The above examples can be verified with this key (in pem format:
+
+
+> This key can be derrived from the JWK with the kid "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"

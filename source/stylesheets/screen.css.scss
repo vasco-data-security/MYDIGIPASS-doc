@@ -494,7 +494,7 @@ html, body {
   }
 
   aside.notice:before {
-    @extend %icon-info-sign;
+    // @extend %icon-info-sign;
   }
 
   aside.warning:before {
