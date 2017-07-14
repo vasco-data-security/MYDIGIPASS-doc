@@ -170,3 +170,35 @@ The above examples can be verified with this key (in pem format:
 
 
 > This key can be derrived from the JWK with the kid "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"
+
+# User Data Endpoint
+
+## GET /oauth/user_data
+
+```sh
+curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/user_data'
+```
+
+```txt
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
+```
+
+It's now possible to request the user_data as a [JWS](https://tools.ietf.org/html/rfc7515), just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)"
+
+# Eid Data Endpoint
+
+## GET /oauth/eid_data
+
+```sh
+curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/eid_data'
+```
+
+```txt
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
+```
+
+It's now possible to request the user_data as a [JWS](https://tools.ietf.org/html/rfc7515), just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)"
+
+# Eid Photo Endpoint
+
+The photo is always sent as a `type/image` and can't be fetched as a [JWS](https://tools.ietf.org/html/rfc7515)
