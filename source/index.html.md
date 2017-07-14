@@ -53,6 +53,73 @@ curl -X GET "https://www.mydigipass.com/.well-known/openid-configuration"
 
 This new endpoint returns a set of Claims about the OpenID Connect Provider's configuration, including all necessary endpoints and public key location information.
 
+
+# JWS
+
+```txt
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
+```
+
+A JWS is a string made of 3 parts separated by `.` as defined in [rfc7515](https://tools.ietf.org/html/rfc7515)
+
+- JOSE Header
+- JWS Payload
+- JWS Signature
+
+
+
+## JOSE header
+
+```json
+{
+"typ": "JWT",
+"alg": "RS256",
+"kid": "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"
+}
+```
+
+JSON object containing the parameters describing the cryptographic operations and parameters employed.
+
+Key | Description
+--- | ---
+typ | type of token
+alg | algorithm used to sign the JWT
+kid | key id, the id of the public key used to sign the JWT the key itself is defined in the [](#jwks-endpoint) endpoint
+
+## JWS Payload
+
+The JSON object containing the requested data.
+
+```json
+{
+"iss": "https://mydigipass.com",
+"sub": "the_user_account_uuid",
+"aud": "your_applications_client_id",
+"iat": 1499756471,
+"exp": 1499756771
+}
+```
+
+## JWS Signature
+
+Digital signature of the JWS Protected Header + the JWS Payload.
+
+The public key required to verify this signature can be found on the [JWKS endpoint](#jwks-endpoint).
+
+> For this example the public key in pem format is the following:
+
+```txt
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwBgyI8kB0BkWfTxIBsBc
+1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE+TRIrY3FUTH6djn3rqpL+Us
+O4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW+
+mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9+81PdFBH+eEFO2f72FG
+hgxhiqKmcvUqn1ImY7iqQZ4C1h/Y4lvkw/AViL/m9IL2p4zJ8LWYwRHu4HfDExJB
+4LTn/XOdWrNQW4aTrbECAEKx/QTWWxnQ+odG46d0826CxpiEr6FKmVQWrWPEemBG
+jwIDAQAB
+-----END PUBLIC KEY-----
+```
+
 # JWKS Endpoint
 
 ## GET /oauth/v1/jwks
@@ -75,7 +142,7 @@ curl -X GET "https://www.mydigipass.com/oauth/v1/jwks"
 }
 ```
 
-The public keys that can be used to verfied the signature in JWS documents delivered by MYDIGIPASS
+This endpoint returns a set of [JSON Web Keys](https://tools.ietf.org/html/rfc7517) that can be used to verify the signature of any [JWS](#jws) issued by MYDIGIPASS.
 
 Key | Description
 --- | ---
@@ -104,32 +171,7 @@ The `openid` scope can be passed to our authorization endpoint.
 }
 ```
 
-Now, the token endpoint will also return an `id_token` param containing a [JWS](https://tools.ietf.org/html/rfc7515).
-This JWS is a string made of 3 parts separated by `.`
-
-- JOSE Header
-- JWS Payload
-- JWS Signature
-
-
-## id_token JOSE header
-
-```json
-{
-"typ": "JWT",
-"alg": "RS256",
-"kid": "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"
-}
-```
-
-JSON object containing the parameters describing the cryptographic operations and parameters employed.
-
-Key | Description
---- | ---
-typ | type of token
-alg | algorithm used to sign the JWT
-kid | key id, the id of the public key used to sign the JWT the key itself is defined in the [JWKS](#jwks-endpoint) endpoint
-
+Now, the token endpoint will also return an `id_token` param containing a [JWS](#jws).
 
 ## id_token Payload
 
@@ -148,29 +190,6 @@ Claim     | Description
 iat       | The time at which the id_token was issued
 exp       | The expiration time of the id_token
 
-## id_token Signature
-
-Digital signature of the JWS Protected Header + the JWS Payload.
-
-The public key can be found on the [JWKS](#jwks-endpoint) endpoint
-
-```txt
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwBgyI8kB0BkWfTxIBsBc
-1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE+TRIrY3FUTH6djn3rqpL+Us
-O4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW+
-mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9+81PdFBH+eEFO2f72FG
-hgxhiqKmcvUqn1ImY7iqQZ4C1h/Y4lvkw/AViL/m9IL2p4zJ8LWYwRHu4HfDExJB
-4LTn/XOdWrNQW4aTrbECAEKx/QTWWxnQ+odG46d0826CxpiEr6FKmVQWrWPEemBG
-jwIDAQAB
------END PUBLIC KEY-----
-```
-
-The above examples can be verified with this key (in pem format:
-
-
-> This key can be derrived from the JWK with the kid "5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"
-
 # User Data Endpoint
 
 ## GET /oauth/user_data
@@ -183,7 +202,9 @@ curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_f
 eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
 ```
 
-It's now possible to request the user_data as a [JWS](https://tools.ietf.org/html/rfc7515), just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)"
+It's now possible to request the user_data as a [JWS](#jws).
+
+Just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)".
 
 # Eid Data Endpoint
 
@@ -197,8 +218,10 @@ curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_f
 eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
 ```
 
-It's now possible to request the user_data as a [JWS](https://tools.ietf.org/html/rfc7515), just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)"
+It's now possible to request the user_data as a [JWS](#jws).
+
+Just set the `Accept` header of the request to "[application/jwt](https://www.iana.org/assignments/media-types/application/jwt)".
 
 # Eid Photo Endpoint
 
-The photo is always sent as a `type/image` and can't be fetched as a [JWS](https://tools.ietf.org/html/rfc7515)
+The photo is always sent as a `type/image` and can't be fetched as a [JWS](#jws)
