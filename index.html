@@ -260,6 +260,76 @@
 </span></code></pre>
 <p>This new endpoint returns a set of Claims about the OpenID Connect Provider&rsquo;s configuration, including all necessary endpoints and public key location information.</p>
 
+<h1 id="jws">JWS</h1>
+<pre class="highlight plaintext"><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
+</code></pre>
+<p>A JWS is a string made of 3 parts separated by <code class="prettyprint">.</code> as defined in <a href="https://tools.ietf.org/html/rfc7515">rfc7515</a></p>
+
+<ul>
+<li>JOSE Header</li>
+<li>JWS Payload</li>
+<li>JWS Signature</li>
+</ul>
+
+<h2 id="jose-header">JOSE header</h2>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+</span><span class="s2">"typ"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JWT"</span><span class="p">,</span><span class="w">
+</span><span class="s2">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RS256"</span><span class="p">,</span><span class="w">
+</span><span class="s2">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<p>JSON object containing the parameters describing the cryptographic operations and parameters employed.</p>
+
+<table><thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>typ</td>
+<td>type of token</td>
+</tr>
+<tr>
+<td>alg</td>
+<td>algorithm used to sign the JWT</td>
+</tr>
+<tr>
+<td>kid</td>
+<td>key id, the id of the public key used to sign the JWT the key itself is defined in the <a href="#jwks-endpoint"></a> endpoint</td>
+</tr>
+</tbody></table>
+
+<h2 id="jws-payload">JWS Payload</h2>
+
+<p>The JSON object containing the requested data.</p>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+</span><span class="s2">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://mydigipass.com"</span><span class="p">,</span><span class="w">
+</span><span class="s2">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"the_user_account_uuid"</span><span class="p">,</span><span class="w">
+</span><span class="s2">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_applications_client_id"</span><span class="p">,</span><span class="w">
+</span><span class="s2">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756471</span><span class="p">,</span><span class="w">
+</span><span class="s2">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756771</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="jws-signature">JWS Signature</h2>
+
+<p>Digital signature of the JWS Protected Header + the JWS Payload.</p>
+
+<p>The public key required to verify this signature can be found on the <a href="#jwks-endpoint">JWKS endpoint</a>.</p>
+
+<blockquote>
+<p>For this example the public key in pem format is the following:</p>
+</blockquote>
+<pre class="highlight plaintext"><code>-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwBgyI8kB0BkWfTxIBsBc
+1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE+TRIrY3FUTH6djn3rqpL+Us
+O4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW+
+mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9+81PdFBH+eEFO2f72FG
+hgxhiqKmcvUqn1ImY7iqQZ4C1h/Y4lvkw/AViL/m9IL2p4zJ8LWYwRHu4HfDExJB
+4LTn/XOdWrNQW4aTrbECAEKx/QTWWxnQ+odG46d0826CxpiEr6FKmVQWrWPEemBG
+jwIDAQAB
+-----END PUBLIC KEY-----
+</code></pre>
 <h1 id="jwks-endpoint">JWKS Endpoint</h1>
 
 <h2 id="get-oauth-v1-jwks">GET /oauth/v1/jwks</h2>
@@ -276,7 +346,7 @@
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>The public keys that can be used to verfied the signature in JWS documents delivered by MYDIGIPASS</p>
+<p>This endpoint returns a set of <a href="https://tools.ietf.org/html/rfc7517">JSON Web Keys</a> that can be used to verify the signature of any <a href="#jws">JWS</a> issued by MYDIGIPASS.</p>
 
 <table><thead>
 <tr>
@@ -321,43 +391,7 @@
 </span><span class="s2">"id_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>Now, the token endpoint will also return an <code class="prettyprint">id_token</code> param containing a <a href="https://tools.ietf.org/html/rfc7515">JWS</a>.
-This JWS is a string made of 3 parts separated by <code class="prettyprint">.</code></p>
-
-<ul>
-<li>JOSE Header</li>
-<li>JWS Payload</li>
-<li>JWS Signature</li>
-</ul>
-
-<h2 id="id_token-jose-header">id_token JOSE header</h2>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-</span><span class="s2">"typ"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JWT"</span><span class="p">,</span><span class="w">
-</span><span class="s2">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RS256"</span><span class="p">,</span><span class="w">
-</span><span class="s2">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5e02e631-77f3-4c7c-b36a-5a1ec13a48fb"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>JSON object containing the parameters describing the cryptographic operations and parameters employed.</p>
-
-<table><thead>
-<tr>
-<th>Key</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>typ</td>
-<td>type of token</td>
-</tr>
-<tr>
-<td>alg</td>
-<td>algorithm used to sign the JWT</td>
-</tr>
-<tr>
-<td>kid</td>
-<td>key id, the id of the public key used to sign the JWT the key itself is defined in the <a href="#jwks-endpoint">JWKS</a> endpoint</td>
-</tr>
-</tbody></table>
+<p>Now, the token endpoint will also return an <code class="prettyprint">id_token</code> param containing a <a href="#jws">JWS</a>.</p>
 
 <h2 id="id_token-payload">id_token Payload</h2>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
@@ -384,26 +418,29 @@ This JWS is a string made of 3 parts separated by <code class="prettyprint">.</c
 </tr>
 </tbody></table>
 
-<h2 id="id_token-signature">id_token Signature</h2>
+<h1 id="user-data-endpoint">User Data Endpoint</h1>
 
-<p>Digital signature of the JWS Protected Header + the JWS Payload.</p>
-
-<p>The public key can be found on the <a href="#jwks-endpoint">JWKS</a> endpoint</p>
-<pre class="highlight plaintext"><code>-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwBgyI8kB0BkWfTxIBsBc
-1PpU9Dqag6uEw5HvsfFBj7bAzQpm8eG3uoD7YYqtE+TRIrY3FUTH6djn3rqpL+Us
-O4th9QTOJQlvP0dkWCk7CfBcRLGAEht4zBUHa09Yu2rpkSednQ05eyV2SefymrW+
-mINEDSSMrmHg0EyaMkkbqlBdCV8Potp5vtHXhESV1CMz9+81PdFBH+eEFO2f72FG
-hgxhiqKmcvUqn1ImY7iqQZ4C1h/Y4lvkw/AViL/m9IL2p4zJ8LWYwRHu4HfDExJB
-4LTn/XOdWrNQW4aTrbECAEKx/QTWWxnQ+odG46d0826CxpiEr6FKmVQWrWPEemBG
-jwIDAQAB
------END PUBLIC KEY-----
+<h2 id="get-oauth-user_data">GET /oauth/user_data</h2>
+<pre class="highlight sh tab-shell"><code>curl -XGET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/user_data'</span>
+</code></pre><pre class="highlight plaintext"><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
 </code></pre>
-<p>The above examples can be verified with this key (in pem format:</p>
+<p>It&rsquo;s now possible to request the user_data as a <a href="#jws">JWS</a>.</p>
 
-<blockquote>
-<p>This key can be derrived from the JWK with the kid &ldquo;5e02e631-77f3-4c7c-b36a-5a1ec13a48fb&rdquo;</p>
-</blockquote>
+<p>Just set the <code class="prettyprint">Accept</code> header of the request to &ldquo;<a href="https://www.iana.org/assignments/media-types/application/jwt">application/jwt</a>&rdquo;.</p>
+
+<h1 id="eid-data-endpoint">Eid Data Endpoint</h1>
+
+<h2 id="get-oauth-eid_data">GET /oauth/eid_data</h2>
+<pre class="highlight sh tab-shell"><code>curl -XGET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/eid_data'</span>
+</code></pre><pre class="highlight plaintext"><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
+</code></pre>
+<p>It&rsquo;s now possible to request the user_data as a <a href="#jws">JWS</a>.</p>
+
+<p>Just set the <code class="prettyprint">Accept</code> header of the request to &ldquo;<a href="https://www.iana.org/assignments/media-types/application/jwt">application/jwt</a>&rdquo;.</p>
+
+<h1 id="eid-photo-endpoint">Eid Photo Endpoint</h1>
+
+<p>The photo is always sent as a <code class="prettyprint">type/image</code> and can&rsquo;t be fetched as a <a href="#jws">JWS</a></p>
 
       </div>
       <div class="dark-box">
