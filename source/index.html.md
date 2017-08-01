@@ -163,6 +163,22 @@ The `openid` scope can be passed to our authorization endpoint.
 
 ## POST /oauth/token
 
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{"code": "your_authorization_code", "client_assertion": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfaWQiLCJhdWQiOiJodHRwOi8vbWRwLnRlc3Q6MzAwMC9vYXV0aC90b2tlbiIsImV4cCI6MTUwMjE4NTg2OSwianRpIjoiMGY2YzIyN2ItODU5Ni00NmUwLWE4M2UtOTMwM2IyNGZlY2RkIn0.3XGfDLWrzyKjKx1ZKuH9PO8H-ydHeEvA1DjhZqRIkVc", "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "redirect_uri": "http://foo.bar", "grant_type": "authorization_code"}' https://www.mydigipass.com/oauth/token
+```
+
+The token endpoint, now supports [Client Authentication](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) using the `client_assertion` & `client_assertion_type` params.
+Pass these new params instead of the `client_id` & `client_secret`
+
+The values should be as such:
+
+Param                 | Value
+---                   | ---
+client_assertion      | a [JWS](#jws) signed by your self and verifiable using your own [JWKS endpoint](#jwks-endpoint). The payload for this client_assertion is defined [here](#clien)
+client_assertion_type | `urn:ietf:params:oauth:client-assertion-type:jwt-bearer` |
+
+
+
 ```json
 {
 "account": "the_user_account_uuid",
@@ -171,9 +187,28 @@ The `openid` scope can be passed to our authorization endpoint.
 }
 ```
 
-Now, the token endpoint will also return an `id_token` param containing a [JWS](#jws).
+Now, the token endpoint will also return an `id_token` param containing a [JWS](#jws) with the [following payload](#id_token-payload).
 
-## id_token Payload
+## client_assertion JWS payload
+
+```json
+{
+  "sub": "client_id",
+  "aud": "http://mdp.test:3000/oauth/token",
+  "exp": 1502185869,
+  "jti": "0f6c227b-8596-46e0-a83e-9303b24fecdd"
+}
+```
+
+Claim | Description
+--- | ---
+sub | your client_id
+aud | `https://www.mydigipass.com/oauth/token`
+exp | The expiration time of the client_assertion
+jti | a unique id that will invalidate any other further reuse of this client_assertion
+
+
+## id_token JWS payload
 
 ```json
 {
@@ -195,7 +230,7 @@ exp       | The expiration time of the id_token
 ## GET /oauth/user_data
 
 ```sh
-curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/user_data'
+curl -X GET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/user_data'
 ```
 
 ```txt
@@ -211,7 +246,7 @@ Just set the `Accept` header of the request to "[application/jwt](https://www.ia
 ## GET /oauth/eid_data
 
 ```sh
-curl -XGET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/eid_data'
+curl -X GET -H 'Accept: application/jwt' -H 'Authorization: Bearer access_token_for_userinfo_endpoint' 'https://www.mydigipass.com/oauth/eid_data'
 ```
 
 ```txt
