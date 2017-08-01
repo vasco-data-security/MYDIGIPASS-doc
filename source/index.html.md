@@ -125,7 +125,7 @@ jwIDAQAB
 ## GET /oauth/v1/jwks
 
 ```sh
-curl -X GET "https://www.mydigipass.com/oauth/v1/jwks"
+curl -X GET -H 'Accept: application/jwk-set+json' "https://www.mydigipass.com/oauth/v1/jwks"
 ```
 
 ```json
@@ -151,6 +151,13 @@ n   | modulus of the JWK
 e   | exponent of the JWK
 use | used for signature only
 
+Note that these headers are set in the response too:
+
+Header          | Value
+---             | ---
+Content-Type  | `application/jwk-set+json`
+Cache-Control | the amount of time you can cache the response e.g  `max-age=14947200, public`
+
 # Authorization Endpoint
 
 ## GET or POST /oauth/authenticate
@@ -164,7 +171,7 @@ The `openid` scope can be passed to our authorization endpoint.
 ## POST /oauth/token
 
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{"code": "your_authorization_code", "client_assertion": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfaWQiLCJhdWQiOiJodHRwOi8vbWRwLnRlc3Q6MzAwMC9vYXV0aC90b2tlbiIsImV4cCI6MTUwMjE4NTg2OSwianRpIjoiMGY2YzIyN2ItODU5Ni00NmUwLWE4M2UtOTMwM2IyNGZlY2RkIn0.3XGfDLWrzyKjKx1ZKuH9PO8H-ydHeEvA1DjhZqRIkVc", "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "redirect_uri": "http://foo.bar", "grant_type": "authorization_code"}' https://www.mydigipass.com/oauth/token
+curl -X POST -H "Content-Type: application/json" -d '{"code": "your_authorization_code", "client_assertion": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfaWQiLCJhdWQiOiJodHRwOi8vbWRwLnRlc3Q6MzAwMC9vYXV0aC90b2tlbiIsImV4cCI6MTUwMjE4NTg2OSwianRpIjoiMGY2YzIyN2ItODU5Ni00NmUwLWE4M2UtOTMwM2IyNGZlY2RkIn0.3XGfDLWrzyKjKx1ZKuH9PO8H-ydHeEvA1DjhZqRIkVc", "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "redirect_uri": "http://foo.bar", "grant_type": "authorization_code"}' "https://www.mydigipass.com/oauth/token"
 ```
 
 The token endpoint, now supports [Client Authentication](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) using the `client_assertion` & `client_assertion_type` params.
