@@ -151,7 +151,7 @@ n   | modulus of the JWK
 e   | exponent of the JWK
 use | used for signature only
 
-Note that these headers are set in the response too:
+Note that these headers are set in the response and should also be set on your own JWKS endpoint:
 
 Header          | Value
 ---             | ---
