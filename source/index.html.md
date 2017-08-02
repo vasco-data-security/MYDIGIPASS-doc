@@ -156,7 +156,7 @@ Note that these headers are set in the response and should also be set on your o
 Header          | Value
 ---             | ---
 Content-Type  | `application/jwk-set+json`
-Cache-Control | the amount of time you can cache the response e.g  `max-age=14947200, public`
+Cache-Control | the amount of time (in seconds) you can cache the response e.g  `max-age=86400, public`
 
 # Authorization Endpoint
 
