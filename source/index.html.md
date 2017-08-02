@@ -211,7 +211,7 @@ Claim | Description
 --- | ---
 sub | your client_id
 aud | `https://www.mydigipass.com/oauth/token`
-exp | The expiration time of the client_assertion
+exp | The expiration time on or after which the client_assertion will be rejected expressed as a [NumericDate](#terminology)
 jti | a unique id that will invalidate any other further reuse of this client_assertion
 
 
@@ -230,7 +230,7 @@ jti | a unique id that will invalidate any other further reuse of this client_as
 Claim     | Description
 --------- | -----------
 iat       | The time at which the id_token was issued
-exp       | The expiration time of the id_token
+exp       | The expiration time on or after which the id_token will be rejected expressed as a [NumericDate](#terminology)
 
 # User Data Endpoint
 
@@ -267,3 +267,10 @@ Just set the `Accept` header of the request to "[application/jwt](https://www.ia
 # Eid Photo Endpoint
 
 The photo is always sent as a `type/image` and can't be fetched as a [JWS](#jws)
+
+# Terminology
+
+Term        | Description
+---         | ---
+NumericDate | A JSON numeric value representing the number of seconds from 1970-01-01T00:00:00Z UTC until the specified UTC date/time,
+
