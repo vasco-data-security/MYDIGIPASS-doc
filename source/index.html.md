@@ -272,5 +272,5 @@ The photo is always sent as a `type/image` and can't be fetched as a [JWS](#jws)
 
 Term        | Description
 ---         | ---
-NumericDate | A JSON numeric value representing the number of seconds from 1970-01-01T00:00:00Z UTC until the specified UTC date/time,
+NumericDate | A JSON numeric value representing the number of seconds from 1970-01-01T00:00:00Z UTC until the specified UTC date/time
 
