@@ -174,14 +174,14 @@ The `openid` scope can be passed to our authorization endpoint.
 curl -X POST -H "Content-Type: application/json" -d '{"code": "your_authorization_code", "client_assertion": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfaWQiLCJhdWQiOiJodHRwOi8vbWRwLnRlc3Q6MzAwMC9vYXV0aC90b2tlbiIsImV4cCI6MTUwMjE4NTg2OSwianRpIjoiMGY2YzIyN2ItODU5Ni00NmUwLWE4M2UtOTMwM2IyNGZlY2RkIn0.3XGfDLWrzyKjKx1ZKuH9PO8H-ydHeEvA1DjhZqRIkVc", "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "redirect_uri": "http://foo.bar", "grant_type": "authorization_code"}' "https://www.mydigipass.com/oauth/token"
 ```
 
-The token endpoint, now supports [Client Authentication](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) using the `client_assertion` & `client_assertion_type` params.
+The token endpoint now supports [Client Authentication](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication) using the `client_assertion` & `client_assertion_type` params.
 Pass these new params instead of the `client_id` & `client_secret`
 
 The values should be as such:
 
 Param                 | Value
 ---                   | ---
-client_assertion      | a [JWS](#jws) signed by your self and verifiable using your own [JWKS endpoint](#jwks-endpoint). The payload for this client_assertion is defined [here](#clien)
+client_assertion      | a [JWS](#jws) signed by yourself and verifiable using your own [JWKS endpoint](#jwks-endpoint). The payload for this client_assertion is defined [here](#clien)
 client_assertion_type | `urn:ietf:params:oauth:client-assertion-type:jwt-bearer` |
 
 
