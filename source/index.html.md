@@ -235,7 +235,7 @@ Claim | Description
 ----- | -----------
 iat   | The time at which the id_token was issued
 exp   | The expiration time on or after which the id_token will be rejected expressed as a [NumericDate](#terminology)
-acr   | The Level of Assurance to which the user is currently authenticated. Only the SMS authentication method will currently result in a less than "http://eidas.europa.eu/LoA/high" LoA.
+acr   | The Level of Assurance up to which the user is currently authenticated. Using the SMS authentication method or not having an eID profile will currently result in a less than "http://eidas.europa.eu/LoA/high" LoA.
 
 # User Data Endpoint
 
