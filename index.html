@@ -288,15 +288,15 @@
 </thead><tbody>
 <tr>
 <td>typ</td>
-<td>type of token</td>
+<td>Type of token</td>
 </tr>
 <tr>
 <td>alg</td>
-<td>algorithm used to sign the JWT</td>
+<td>Algorithm used to sign the JWT</td>
 </tr>
 <tr>
 <td>kid</td>
-<td>key id, the id of the public key used to sign the JWT the key itself is defined in the <a href="#jwks-endpoint"></a> endpoint</td>
+<td>Key id, the id of the public key used to sign the JWT the key itself is defined in the <a href="#jwks-endpoint"></a> endpoint</td>
 </tr>
 </tbody></table>
 
@@ -333,7 +333,7 @@ jwIDAQAB
 <h1 id="jwks-endpoint">JWKS Endpoint</h1>
 
 <h2 id="get-oauth-v1-jwks">GET /oauth/v1/jwks</h2>
-<pre class="highlight sh tab-shell"><code>curl -X GET <span class="s2">"https://www.mydigipass.com/oauth/v1/jwks"</span>
+<pre class="highlight sh tab-shell"><code>curl -X GET -H <span class="s1">'Accept: application/jwk-set+json'</span> <span class="s2">"https://www.mydigipass.com/oauth/v1/jwks"</span>
 </code></pre><pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
   </span><span class="s2">"keys"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -356,19 +356,37 @@ jwIDAQAB
 </thead><tbody>
 <tr>
 <td>kid</td>
-<td>id of the JWK, will be referenced in the JOSE header of any JWS document delivered by MYDIGIPASS</td>
+<td>Id of the JWK, will be referenced in the JOSE header of any JWS document delivered by MYDIGIPASS</td>
 </tr>
 <tr>
 <td>n</td>
-<td>modulus of the JWK</td>
+<td>Modulus of the JWK</td>
 </tr>
 <tr>
 <td>e</td>
-<td>exponent of the JWK</td>
+<td>Exponent of the JWK</td>
 </tr>
 <tr>
 <td>use</td>
-<td>used for signature only</td>
+<td>Used for signature only</td>
+</tr>
+</tbody></table>
+
+<p>Note that these headers are set in the response and should also be set on your own JWKS endpoint:</p>
+
+<table><thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Content-Type</td>
+<td><code class="prettyprint">application/jwk-set+json</code></td>
+</tr>
+<tr>
+<td>Cache-Control</td>
+<td>The amount of time (in seconds) you can cache the response e.g  <code class="prettyprint">max-age=86400, public</code></td>
 </tr>
 </tbody></table>
 
@@ -382,24 +400,83 @@ jwIDAQAB
 
 <p>The <code class="prettyprint">openid</code> scope can be passed to our authorization endpoint.</p>
 
+<p>The openid LoA parameter can also be specified in this request, passing
+the requested value (one of &ldquo;http://eidas.europa.eu/LoA/high&rdquo;, &ldquo;http://eidas.europa.eu/LoA/substantial&rdquo; or &ldquo;http://eidas.europa.eu/LoA/low&rdquo;) to the key &ldquo;acr_values&rdquo;.
+Requiring &ldquo;http://eidas.europa.eu/LoA/high&rdquo; will prevent users from authenticating with an SMS code.</p>
+
 <h1 id="token-endpoint">Token Endpoint</h1>
 
 <h2 id="post-oauth-token">POST /oauth/token</h2>
+<pre class="highlight sh tab-shell"><code>curl -X POST -H <span class="s2">"Content-Type: application/json"</span> -d <span class="s1">'{"code": "your_authorization_code", "client_assertion": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbGllbnRfaWQiLCJhdWQiOiJodHRwOi8vbWRwLnRlc3Q6MzAwMC9vYXV0aC90b2tlbiIsImV4cCI6MTUwMjE4NTg2OSwianRpIjoiMGY2YzIyN2ItODU5Ni00NmUwLWE4M2UtOTMwM2IyNGZlY2RkIn0.3XGfDLWrzyKjKx1ZKuH9PO8H-ydHeEvA1DjhZqRIkVc", "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "redirect_uri": "http://foo.bar", "grant_type": "authorization_code"}'</span> <span class="s2">"https://www.mydigipass.com/oauth/token"</span>
+</code></pre>
+<p>The token endpoint now supports <a href="http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication">Client Authentication</a> using the <code class="prettyprint">client_assertion</code> &amp; <code class="prettyprint">client_assertion_type</code> params.
+Pass these new params instead of the <code class="prettyprint">client_id</code> &amp; <code class="prettyprint">client_secret</code></p>
+
+<p>The values should be as such:</p>
+
+<table><thead>
+<tr>
+<th>Param</th>
+<th>Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>client_assertion</td>
+<td>A <a href="#jws">JWS</a> signed by yourself and verifiable using your own <a href="#jwks-endpoint">JWKS endpoint</a>. The payload for this client_assertion is defined <a href="#clien">here</a></td>
+</tr>
+<tr>
+<td>client_assertion_type</td>
+<td><code class="prettyprint">urn:ietf:params:oauth:client-assertion-type:jwt-bearer</code></td>
+</tr>
+</tbody></table>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
 </span><span class="s2">"account"</span><span class="p">:</span><span class="w"> </span><span class="s2">"the_user_account_uuid"</span><span class="p">,</span><span class="w">
 </span><span class="s2">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"access_token_for_userinfo_endpoint"</span><span class="p">,</span><span class="w">
 </span><span class="s2">"id_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>Now, the token endpoint will also return an <code class="prettyprint">id_token</code> param containing a <a href="#jws">JWS</a>.</p>
+<p>Now, the token endpoint will also return an <code class="prettyprint">id_token</code> param containing a <a href="#jws">JWS</a> with the <a href="#id_token-payload">following payload</a>.</p>
 
-<h2 id="id_token-payload">id_token Payload</h2>
+<h2 id="client_assertion-jws-payload">client_assertion JWS payload</h2>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-</span><span class="s2">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://mydigipass.com"</span><span class="p">,</span><span class="w">
-</span><span class="s2">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"the_user_account_uuid"</span><span class="p">,</span><span class="w">
-</span><span class="s2">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_applications_client_id"</span><span class="p">,</span><span class="w">
-</span><span class="s2">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756471</span><span class="p">,</span><span class="w">
-</span><span class="s2">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756771</span><span class="w">
+  </span><span class="s2">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"client_id"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://mdp.test:3000/oauth/token"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1502185869</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"jti"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0f6c227b-8596-46e0-a83e-9303b24fecdd"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<table><thead>
+<tr>
+<th>Claim</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>sub</td>
+<td>Your client_id</td>
+</tr>
+<tr>
+<td>aud</td>
+<td><code class="prettyprint">https://www.mydigipass.com/oauth/token</code></td>
+</tr>
+<tr>
+<td>exp</td>
+<td>The expiration time on or after which the client_assertion will be rejected expressed as a <a href="#terminology">NumericDate</a></td>
+</tr>
+<tr>
+<td>jti</td>
+<td>A unique identifier, generated by you, that will invalidate any reuse of this client_assertion</td>
+</tr>
+</tbody></table>
+
+<h2 id="id_token-jws-payload">id_token JWS payload</h2>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://mydigipass.com"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"the_user_account_uuid"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your_applications_client_id"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756471</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1499756771</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"acr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://eidas.europa.eu/LoA/high"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 <table><thead>
@@ -414,14 +491,18 @@ jwIDAQAB
 </tr>
 <tr>
 <td>exp</td>
-<td>The expiration time of the id_token</td>
+<td>The expiration time on or after which the id_token will be rejected expressed as a <a href="#terminology">NumericDate</a></td>
+</tr>
+<tr>
+<td>acr</td>
+<td>The Level of Assurance up to which the user is currently authenticated. Using the SMS authentication method or not having an eID profile will currently result in a less than &ldquo;http://eidas.europa.eu/LoA/high&rdquo; LoA.</td>
 </tr>
 </tbody></table>
 
 <h1 id="user-data-endpoint">User Data Endpoint</h1>
 
 <h2 id="get-oauth-user_data">GET /oauth/user_data</h2>
-<pre class="highlight sh tab-shell"><code>curl -XGET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/user_data'</span>
+<pre class="highlight sh tab-shell"><code>curl -X GET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/user_data'</span>
 </code></pre><pre class="highlight plaintext"><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
 </code></pre>
 <p>It&rsquo;s now possible to request the user_data as a <a href="#jws">JWS</a>.</p>
@@ -431,7 +512,7 @@ jwIDAQAB
 <h1 id="eid-data-endpoint">Eid Data Endpoint</h1>
 
 <h2 id="get-oauth-eid_data">GET /oauth/eid_data</h2>
-<pre class="highlight sh tab-shell"><code>curl -XGET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/eid_data'</span>
+<pre class="highlight sh tab-shell"><code>curl -X GET -H <span class="s1">'Accept: application/jwt'</span> -H <span class="s1">'Authorization: Bearer access_token_for_userinfo_endpoint'</span> <span class="s1">'https://www.mydigipass.com/oauth/eid_data'</span>
 </code></pre><pre class="highlight plaintext"><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjVlMDJlNjMxLTc3ZjMtNGM3Yy1iMzZhLTVhMWVjMTNhNDhmYiJ9.eyJpc3MiOiJodHRwczovL215ZGlnaXBhc3MuY29tIiwic3ViIjoidGhlX3VzZXJfYWNjb3VudF91dWlkIiwiYXVkIjoieW91cl9hcHBsaWNhdGlvbnNfY2xpZW50X2lkIiwiaWF0IjoxNDk5NzU2NDcxLCJleHAiOjE0OTk3NTY3NzF9.YRnhRxrlLK5EGSG2U2L9dG0t04vCuAa4pKT5_RvwZkKb31Hrj17TeT_bzi8ljdgBI5KVksSjZOEf9b9LNeAOam9a0Q2NPWEHnnxOjLnMPaUyxtYS4ZW20A_gfPfJsjAchSYd6v-P6FR8ZgjzdMopLiVO0xfO5sNCBOK-Eg0kQoahNrih9FnmVpg7guy1EZA1JaVKBaLHHmENFYvduXbyhoIjb0NaWGz1I3xJinnbzEHHQ1Kt5vwe2Rn34y-ODC5aELqYMIQwYkwHOUn7GExZu8FUCgoL_ThFLkpirJI96-YUhgB0rUOGEyhACCwpTFwqsoFD7pGFJZgY95FNRfIW2g
 </code></pre>
 <p>It&rsquo;s now possible to request the user_data as a <a href="#jws">JWS</a>.</p>
@@ -441,6 +522,20 @@ jwIDAQAB
 <h1 id="eid-photo-endpoint">Eid Photo Endpoint</h1>
 
 <p>The photo is always sent as a <code class="prettyprint">type/image</code> and can&rsquo;t be fetched as a <a href="#jws">JWS</a></p>
+
+<h1 id="terminology">Terminology</h1>
+
+<table><thead>
+<tr>
+<th>Term</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>NumericDate</td>
+<td>A JSON numeric value representing the number of seconds from 1970-01-01T00:00:00Z UTC until the specified UTC date/time</td>
+</tr>
+</tbody></table>
 
       </div>
       <div class="dark-box">
