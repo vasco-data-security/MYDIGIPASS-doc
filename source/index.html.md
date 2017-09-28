@@ -162,7 +162,7 @@ Cache-Control | The amount of time (in seconds) you can cache the response e.g  
 
 ## GET or POST /oauth/authenticate
 
-> This is most commonly done by adding `opendid` to the `data-scope` attribute of the MYDIGIPASS button.
+> This is most commonly done by adding `openid` to the `data-scope` attribute of the MYDIGIPASS button.
 
 The `openid` scope can be passed to our authorization endpoint.
 
